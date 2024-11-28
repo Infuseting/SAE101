@@ -154,11 +154,17 @@ direction mouvement(board game)
   direction d;
   printf("Dans quelle direction voulez-vous déplacer votre roi ?\n");
   printf("  \e[34m╔═══╦═══╦═══╗\e[0m\n");
-  printf("  \e[34m║ %s ║ %s ║ %s ║\e[0m\n", check_possible(game, NW), check_possible(game, N), check_possible(game, NE));
+  printf("  \e[34m║ %s ", check_possible(game, NW));
+  printf("║ %s ", check_possible(game, N));
+  printf("║ %s ║\e[0m\n", check_possible(game, NE));
   printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");
-  printf("  \e[34m║ %s ║ * ║ %s ║\e[0m\n", check_possible(game, W), check_possible(game, E));
+  printf("  \e[34m║ %s ", check_possible(game, W));
+  printf("║ * ");
+  printf("║ %s ║\e[0m\n", check_possible(game, E));
   printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");
-  printf("  \e[34m║ %s ║ %s ║ %s ║\e[0m\n", check_possible(game, SW), check_possible(game, S), check_possible(game, SE));
+  printf("  \e[34m║ %s ", check_possible(game, SW));
+  printf("║ %s ", check_possible(game, S));
+  printf("║ %s ║\e[0m\n", check_possible(game, SE));
   printf("  \e[34m╚═══╩═══╩═══╝\e[0m\n");
   int choix;
   while (scanf("%d", &choix) != 1) {
