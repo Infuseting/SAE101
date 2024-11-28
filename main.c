@@ -1,15 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "board.h"
 #include <unistd.h>
 
+
 /**
- * @brief Prints an error message with a specific error code.
- *
- * This function prints an error message in red color to the standard output.
- * The error code is displayed in bold red, followed by the error message in red.
- *
- * @param code The error code to be displayed.
- * @param message The error message to be displayed.
+ * @brief Affiche un message d'erreur.
+ * 
+ * Cette fonction affiche un message d'erreur.
+ * 
+ * @param code Le code de l'erreur.
+ * @param message Le message d'erreur.
+ * 
  * @author Arthur
  */
 void error(int code, const char *message)
@@ -17,26 +19,25 @@ void error(int code, const char *message)
   printf("\e[1;31mErreur %d\e[0m\n", code);
   printf("\e[31m%s\e[0m\n", message);
 }
+
+
+
+
+
+
+
+
+
+
+
 /**
- * @brief Draws a line character at the specified coordinates.
- *
- * This function prints a specific line character based on the given coordinates (i, j).
- * The characters are drawn using ANSI escape codes for colored output.
- *
- * @param i The row coordinate.
- * @param j The column coordinate.
- *
- * The function uses the following rules to determine which character to print:
- * - If j == 0, prints a space.
- * - If (i == 0 && j == 0), prints the top-left corner character.
- * - If (i == NB_LINES * 2 && j == 0), prints the bottom-left corner character.
- * - If (i == 0 && j == NB_COLS * 2), prints the top-right corner character.
- * - If (i == NB_LINES * 2 && j == NB_COLS * 2), prints the bottom-right corner character.
- * - If (i == NB_LINES * 2), prints the bottom edge character.
- * - If (j == NB_COLS * 2), prints the right edge character.
- * - If (i == 0), prints the top edge character.
- * - If (j == 0), prints the left edge character.
- * - Otherwise, prints the intersection character.
+ * @brief Dessine une ligne du plateau de jeu.
+ * 
+ * Cette fonction dessine une ligne du plateau de jeu.
+ * 
+ * @param i La ligne de la case.
+ * @param j La colonne de la case.
+ * 
  * @author Arthur
  */
 void draw_line(int i, int j) {
@@ -51,19 +52,18 @@ void draw_line(int i, int j) {
   else if (j == 0) printf("\e[34m╠\e[0m");
   else printf("\e[34m╬\e[0m");
 }
+
 /**
- * @brief Draws the content of a specific cell on the game board.
- *
- * This function prints the content of a cell located at the specified
- * coordinates (i, j) on the game board. The content can be empty, a killed
- * piece, a north king, or a south king. The appearance of the north and south
- * kings can be customized using the pseudoN and pseudoS parameters.
- *
- * @param i The row index of the cell.
- * @param j The column index of the cell.
- * @param game The game board containing the cell.
- * @param pseudoN The pseudo name for the north king. If NULL, 'N' is used.
- * @param pseudoS The pseudo name for the south king. If NULL, 'S' is used.
+ * @brief Dessine le contenu d'une case du plateau de jeu.
+ * 
+ * Cette fonction dessine le contenu d'une case du plateau de jeu.
+ * 
+ * @param i La ligne de la case.
+ * @param j La colonne de la case.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
  * @author Arthur
  */
 void draw_content(int i, int j, board game, char *pseudoN, char *pseudoS)
@@ -87,16 +87,16 @@ void draw_content(int i, int j, board game, char *pseudoN, char *pseudoS)
     break;
   }
 }
-
 /**
- * @brief Draws a box on the game board at the specified coordinates.
- * @param i The row index on the game board.
- * @param j The column index on the game board.
- * @param game The current state of the game board.
- * @param pseudoN The pseudonym of the North player.
- * @param pseudoS The pseudonym of the South player.
- * @note The appearance of the box is determined by the game state and the provided player pseudonyms.
- * @author Arthur
+ * @brief Dessine une case du plateau de jeu.
+ * 
+ * Cette fonction dessine une case du plateau de jeu.
+ * 
+ * @param i La ligne de la case.
+ * @param j La colonne de la case.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
  */
 void draw_box(int i, int j, board game, char *pseudoN, char *pseudoS){
   if (i % 2 == 0) {
@@ -115,40 +115,247 @@ void draw_box(int i, int j, board game, char *pseudoN, char *pseudoS){
     }
   }
 }
-/** 
- * @brief Displays the game board on the standard output.
- * @param game The current state of the game board.
- * @param pseudoN The pseudonym of the North player.
- * @param pseudoS The pseudonym of the South player.
- * @note The game board is displayed using ASCII characters and colored output.
+
+
+
+
+
+/**
+ * @brief Affiche la tête du plateau de jeu.
+ * 
+ * Cette fonction affiche la tête du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param offset L'offset du plateau de jeu.
+ * 
+ * @author Arthur
+ */
+void head_line(int n, int offset){
+
+	for(int i=0;i<offset + 1;i++)
+		printf(" ");
+	for(int i=0;i<n;i++)
+		printf("\e[36m╱ ╲\e[0m ");
+	printf("\n");
+}
+/**
+ * @brief Affiche la tête du plateau de jeu.
+ * 
+ * Cette fonction affiche la tête du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param offset L'offset du plateau de jeu.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * @param y La ligne du plateau de jeu.
+ * @param x La colonne du plateau de jeu.
+ * 
+ * @author Arthur
+ */
+void body_line(int n, int offset, board game, char *pseudoN, char *pseudoS, int y, int x){
+
+	for(int i=0;i<offset;i++)
+		printf(" ");
+  printf("\e[32m%d\e[0m", y);
+	printf("\e[32m|\e[0m");
+	for(int i=0;i<n;i++) {
+		printf(" ");
+    draw_content(y, i + x, game, pseudoN, pseudoS);
+    printf(" \e[32m|\e[0m");
+  }
+	printf("\n");
+}
+/**
+ * @brief Affiche le pied du plateau de jeu.
+ * 
+ * Cette fonction affiche le pied du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param offset L'offset du plateau de jeu.
+ * 
+ * @author Arthur
+ */
+void foot_line(int n, int offset){
+
+	for(int i=0;i<offset + 1;i++)
+		printf(" ");
+	for(int i=0;i<n;i++)
+		printf("\e[36m╲ ╱\e[0m ");
+	printf("\n");
+}
+
+/**
+ * @brief Affiche le corps du plateau de jeu.
+ * 
+ * Cette fonction affiche le corps du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * @param y La ligne du plateau de jeu.
+ * 
+ * @author Arthur
+ */
+void body(int n, board game, char *pseudoN, char *pseudoS, int y){
+
+	head_line(n,1);
+	body_line(n,0, game, pseudoN, pseudoS, y,0);
+	foot_line(n,1);
+
+} 
+
+/**
+ * @brief Affiche la tête du plateau de jeu.
+ * 
+ * Cette fonction affiche la tête du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param x addition au numero
+ * @param space espace en plus
+ * 
+ * @author Arthur 
+ * 
+ *  */
+void numerote(int n, int x, int space) {
+  printf("   ");
+  for (int i = 0; i < n + space ; i++) {
+    printf(" ");
+  }
+  for (int i = 0; i < n; i++) {
+    printf("\e[36m%d\e[0m   ", i + x);
+  }
+  printf("\n");
+}
+
+/**
+ * @brief Affiche la tête du plateau de jeu.
+ * 
+ * Cette fonction affiche la tête du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param offset L'offset du plateau de jeu.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * @param y La ligne du plateau de jeu.
+ * 
+ * @author Arthur
+ */
+void head(int n,int offset, board game, char *pseudoN, char *pseudoS, int y){
+
+	head_line(n,offset+1);
+	body_line(n,offset, game, pseudoN, pseudoS, y, 0);
+
+}
+
+/**
+ * @brief Affiche le pied du plateau de jeu.
+ * 
+ * Cette fonction affiche le pied du plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param offset L'offset du plateau de jeu.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * @param y La ligne du plateau de jeu.
+ * @param x La colonne du plateau de jeu.
+ * 
+ * @author Arthur
+ */
+void foot(int n,int offset, board game, char *pseudoN, char *pseudoS, int y, int x){
+
+	body_line(n,offset, game, pseudoN, pseudoS, y, x);
+	foot_line(n,offset+1);
+
+}
+
+/**
+ * @brief Affiche le plateau de jeu.
+ * 
+ * Cette fonction affiche le plateau de jeu.
+ * 
+ * @param n La taille du plateau de jeu.
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
+ * @author Arthur
+ */
+void fig(int n, board game, char *pseudoN, char *pseudoS){
+	int y = 0;
+	int size=n;
+	for(int i=n-1;i>0;i--){
+		head(size,(i*2), game, pseudoN, pseudoS, y);
+    y++;
+		size++;
+	}
+	
+	body(size, game, pseudoN, pseudoS,y);
+	y++;
+  int x = 1;
+  
+  for(int i=1;i<n;i++){
+		size--;
+		foot(size,i*2, game, pseudoN, pseudoS,y, x);
+    y++;
+    x++;
+	}
+
+}
+
+/**
+ * @brief Affiche le plateau de jeu.
+ * 
+ * Cette fonction affiche le plateau de jeu.
+ * 
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
  * @author Arthur
  */
 void afficher_plateau(board game, char *pseudoN, char *pseudoS)
 {
-  printf("   ");
-  for (int i = 0; i < NB_COLS * 2; i++)
+  if (is_hex(game))
   {
-    if (i % 2 == 0)
-    {
-      printf("%d ", i / 2);
-    }
+    numerote(HEX_SIDE, 0, 5);
+    fig((MAX_DIMENSION % 2 == 0) ? (MAX_DIMENSION / 2) : (MAX_DIMENSION / 2) + 1, game, pseudoN, pseudoS);
+    numerote(HEX_SIDE, 4, 0);
   }
-  printf("\n");
-  for (int i = 0; i < NB_LINES * 2 + 1; i++)
+  else
   {
-    for (int j = 0; j < NB_COLS * 2 + 1; j++)
+    printf("   ");
+    for (int i = 0; i < NB_COLS * 2; i++)
     {
-      draw_box(i, j, game, pseudoN, pseudoS);
+      if (i % 2 == 0)
+      {
+        printf("%d ", i / 2);
+      }
     }
     printf("\n");
+    for (int i = 0; i < NB_LINES * 2 + 1; i++)
+    {
+      for (int j = 0; j < NB_COLS * 2 + 1; j++)
+      {
+        draw_box(i, j, game, pseudoN, pseudoS);
+      }
+      printf("\n");
+    }
   }
 }
+
 /**
- * @brief Displays the current player on the standard output.
- * @param game The current state of the game board.
- * @param pseudoN The pseudonym of the North player.
- * @param pseudoS The pseudonym of the South player.
- * @note The current player is displayed in the color of their respective king.
+ * @brief Affiche le joueur courant.
+ * 
+ * Cette fonction affiche le joueur courant.
+ * 
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
  * @author Arthur
  */
 void afficher_joueur(board game, char *pseudoN, char *pseudoS)
@@ -168,46 +375,58 @@ void afficher_joueur(board game, char *pseudoN, char *pseudoS)
   }
 }
 /**
- * @brief Displays a text on the standard output.
- * @param texte The text to display.
+ * @brief Affiche un texte.
+ * 
+ * Cette fonction affiche un texte.
+ * 
+ * @param texte Le texte à afficher.
+ * 
  * @author Arthur
  */
 void afficher_texte(const char *texte)
 {
   printf("%s", texte);
 }
-/** 
- * @brief Finds the coordinates of the king on the game board.
- * @param game The current state of the game board.
- * @param king_line The pointer to the variable where the king's row index will be stored.
- * @param king_column The pointer to the variable where the king's column index will be stored.
- * @note The king's coordinates are stored in the king_line and king_column variables.
+/**
+ * @brief Trouve la position du roi.
+ * 
+ * Cette fonction trouve la position du roi.
+ * 
+ * @param game Le plateau de jeu.
+ * @param king_line La ligne du roi.
+ * @param king_column La colonne du roi.
+ * 
  * @author Arthur
  */
 void find_king(board game, int *king_line, int *king_column){
-  for (int i = 0; i < NB_LINES; i++) {
-    for (int j = 0; j < NB_COLS; j++) {
+  for (int i = 0; i < MAX_DIMENSION; i++) {
+    for (int j = 0; j < MAX_DIMENSION; j++) {
       if (current_player(game) == NORTH){
         if (get_content(game, i, j) == NORTH_KING){*king_line = i; *king_column = j;}
       }
       else{
+        
         if (get_content(game, i, j) == SOUTH_KING){ *king_line = i; *king_column = j;}
       }
     }
   }
 }
-/**
- * @brief Checks if the king can move in a specific direction.
- * @param game The current state of the game board.
- * @param d The direction in which the king should move.
- * @return true if the king can move in the specified direction, false otherwise.
- * @note The king can move to an empty cell.
+/** 
+ * @brief Vérifie si un mouvement est possible.
+ * 
+ * Cette fonction vérifie si un mouvement est possible.
+ * 
+ * @param game Le plateau de jeu.
+ * @param d La direction du mouvement.
+ * @return true si le mouvement est possible, false sinon.
+ * 
  * @author Arthur
  */
 bool can_move(board game, direction d)
 {
   int line = 0, column = 0;
-  switch (d){  case NW: line = -1; column = -1; break;
+  switch (d){  
+  case NW: line = -1; column = -1; break;
   case N: line = -1; column = 0; break;
   case NE: line = -1; column = 1; break;
   case W: line = 0; column = -1; break;
@@ -218,33 +437,35 @@ bool can_move(board game, direction d)
   default: break;}
   int king_line = 0, king_column = 0;
   find_king(game, &king_line, &king_column);
-  if (king_line + line < 0 || king_line + line >= NB_LINES || king_column + column < 0 || king_column + column >= NB_COLS) return false;
+  if (is_hex(game)) {
+    if (king_line + line < 0 || king_line + line >= MAX_DIMENSION || king_column + column < 0 || king_column + column >= MAX_DIMENSION) return false;
+  } else {
+    if (king_line + line < 0 || king_line + line >= NB_LINES || king_column + column < 0 || king_column + column >= NB_COLS) return false;
+  }
   if (get_content(game, king_line + line, king_column + column) == EMPTY) return true;
   return false;
 }
 
 /**
- * @brief Draws a box on the game board at the specified coordinates.
- *
- * This function draws a box on the game board at the specified coordinates (i, j).
- * Depending on the coordinates, it either draws a line, a border, or the content
- * of the box. The appearance of the box is determined by the game state and the
- * provided player pseudonyms.
- *
- * @param i The row index on the game board.
- * @param j The column index on the game board.
- * @param game The current state of the game board.
- * @param pseudoN The pseudonym of the North player.
- * @param pseudoS The pseudonym of the South player.
- *
- * The string also includes a number representing the direction and ends with a blue color code (\e[34m).
+ * @brief Vérifie si un mouvement est possible.
+ * 
+ * Cette fonction vérifie si un mouvement est possible.
+ * 
+ * @param game Le plateau de jeu.
+ * @param d La direction du mouvement.
+ * @return true si le mouvement est possible, false sinon.
+ * 
  * @author Arthur
  */
 char *check_possible(board game, direction d)
 {
-  static char res[12];
-  if (!can_move(game, d)) snprintf(res, sizeof(res), "\e[31m");
-  else snprintf(res, sizeof(res), "\e[32m");
+  char *res = (char *)malloc(12 * sizeof(char));
+  if (!res) {
+    error(1, "Memory allocation failed");
+    return NULL;
+  }
+  if (!can_move(game, d)) snprintf(res, 12, "\e[31m");
+  else snprintf(res, 12, "\e[32m");
   switch (d){
   case 0: res[5] = '1'; break;
   case 1: res[5] = '2'; break;
@@ -255,41 +476,45 @@ char *check_possible(board game, direction d)
   case 6: res[5] = '8'; break;
   case 7: res[5] = '9'; break;
   default: break;}
-  snprintf(res + 6, sizeof(res) - 6, "\e[34m");
+  snprintf(res + 6, 6, "\e[34m");
   return res;
 }
 
 
-
 /**
- * @brief Prompts the user to choose a direction to move the king on the board.
- *
- * This function displays a graphical representation of the possible directions
- * the king can move on the board. It then prompts the user to enter a number
- * corresponding to the desired direction. The function validates the input and
- * returns the chosen direction.
- *
- * @param game The current state of the board.
- * @return The direction chosen by the user.
- *
- * Directions are mapped to the following numbers:
- * 1 - Southwest (SW)
- * 2 - South (S)
- * 3 - Southeast (SE)
- * 4 - West (W)
- * 6 - East (E)
- * 7 - Northwest (NW)
- * 8 - North (N)
- * 9 - Northeast (NE)
+ * @brief Demande à l'utilisateur de choisir une direction.
  * 
- * If an invalid input is entered, an error message is displayed and the user
- * is prompted to enter a valid number again.
+ * Cette fonction demande à l'utilisateur de choisir une direction.
+ * 
+ * @param game Le plateau de jeu.
+ * @return La direction choisie.
+ * 
  * @author Arnaud et Arthur
  */
 direction mouvement(board game)
 {
   direction d;
-  printf("Dans quelle direction voulez-vous déplacer votre roi ?\n");printf("  \e[34m╔═══╦═══╦═══╗\e[0m\n");printf("  \e[34m║ %s ", check_possible(game, NW));printf("║ %s ", check_possible(game, N));printf("║ %s ║\e[0m\n", check_possible(game, NE));printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");printf("  \e[34m║ %s ", check_possible(game, W));printf("║ * ");printf("║ %s ║\e[0m\n", check_possible(game, E));printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");printf("  \e[34m║ %s ", check_possible(game, SW));printf("║ %s ", check_possible(game, S));printf("║ %s ║\e[0m\n", check_possible(game, SE));printf("  \e[34m╚═══╩═══╩═══╝\e[0m\n");
+  printf("Dans quelle direction voulez-vous déplacer votre roi ?\n");
+  if (!is_hex(game)) {
+    printf("  \e[34m╔═══╦═══╦═══╗\e[0m\n"
+           "  \e[34m║ %s ║ %s ║ %s ║\e[0m\n"
+           "  \e[34m╠═══╬═══╬═══╣\e[0m\n"
+           "  \e[34m║ %s ║ * ║ %s ║\e[0m\n"
+           "  \e[34m╠═══╬═══╬═══╣\e[0m\n"
+           "  \e[34m║ %s ║ %s ║ %s ║\e[0m\n"
+           "  \e[34m╚═══╩═══╩═══╝\e[0m\n",
+           check_possible(game, NW), check_possible(game, N), check_possible(game, NE),
+           check_possible(game, W), check_possible(game, E),
+           check_possible(game, SW), check_possible(game, S), check_possible(game, SE));
+  }
+  else
+  {
+    printf("   \e[34m╱╲╱╲   \e[0m\n  \e[34m▕%s▕%s▕   \e[0m\n  \e[34m╱╲╱╲╱╲  \e[0m\n \e[34m▕%s▕*▕%s▕ \e[0m\n  \e[34m╲╱╲╱╲╱  \e[0m\n  \e[34m▕%s▕%s▕ \e[0m\n   \e[34m╲╱╲╱   \e[0m\n",
+         check_possible(game, NW), check_possible(game, NE),
+         check_possible(game, W), check_possible(game, E),
+         check_possible(game, SW), check_possible(game, SE));
+  }
+
   int choix;
   while (scanf("%d", &choix) != 1) {
     error(2, "Le charactère entrée est incorrecte");
@@ -297,21 +522,25 @@ direction mouvement(board game)
   }
   switch (choix) {
   case 1: d = SW; break;
-  case 2: d = S; break;
+  case 2: if (!is_hex(game)) d = S; break;
   case 3: d = SE; break;
   case 4: d = W; break;
   case 6: d = E; break;
   case 7: d = NW; break;
-  case 8: d = N; break;
+  case 8: if (!is_hex(game)) d = N; break;
   case 9: d = NE; break;
   default: error(2, "Le charactère entrée est incorrecte"); break;
   }
   return d;
 }
 /**
- * @brief Checks if a player can move their king to an other cell.
- * @param game the game to play.
- * @note The player can move their king to an empty cell.
+ * @brief Vérifie si un mouvement est possible.
+ * 
+ * Cette fonction vérifie si un mouvement est possible.
+ * 
+ * @param game Le plateau de jeu.
+ * @return true si le mouvement est possible, false sinon.
+ * 
  * @author Arnaud
  */
 void check_movement(board game)
@@ -322,15 +551,19 @@ void check_movement(board game)
     if (move_toward(game, d) == OK) ok = 0;
     else if (move_toward(game, d) == BUSY) error(3, "Déplacement impossible case occupée");
     else if (move_toward(game, d) == OUT) error(3, "Déplacement impossible hors plateau");
+    else if (move_toward(game, d) == RULES) error(3, "Déplacement impossible règles");
     else error(3, "Déplacement impossible");
   }
 }
-
-/**
- * @brief Asks the user to kill a cell.
- * @param game the game to play.
- * @note can kill a cell already kill.
+/** 
+ * @brief Demande à l'utilisateur de choisir une case à tuer.
+ * 
+ * Cette fonction demande à l'utilisateur de choisir une case à tuer.
+ * 
+ * @param game Le plateau de jeu.
+ * 
  * @author Arnaud
+ * 
  */
 void choix_kill(board game)
 {
@@ -360,15 +593,21 @@ void choix_kill(board game)
       error(1, "Case hors plateau");
     else if (kill_cell(game, line, column) == BUSY)
       error(1, "Case occupée");
+    else if (kill_cell(game, line, column) == RULES)
+      error(1, "Case trop loin de votre pion");
     else
       error(1, "Case impossible à tuer");
   }
 }
 
 /**
- * @brief Checks if a pseudo is valid.
- * @param pseudo the pseudo to check.
- * @return true if the pseudo is valid, false otherwise.
+ * @brief Vérifie si un pseudo est valide.
+ * 
+ * Cette fonction vérifie si un pseudo est valide.
+ * 
+ * @param pseudo Le pseudo à vérifier.
+ * @return true si le pseudo est valide, false sinon.
+ * 
  * @author Arnaud
  */
 bool is_valid_pseudo(const char *pseudo)
@@ -386,11 +625,13 @@ bool is_valid_pseudo(const char *pseudo)
 }
 
 /**
- * @brief Asks the user to input a pseudo.
- * @param pseudo the pseudo to input.
- * @note The pseudo must be at most 32 characters long.
- * @note The pseudo must not be empty.
- * @author Arthur et Arnaud
+ * @brief Demande à l'utilisateur de choisir un pseudo.
+ * 
+ * Cette fonction demande à l'utilisateur de choisir un pseudo.
+ * 
+ * @param pseudo Le pseudo du joueur.
+ * 
+ * @author Arthur
  */
 void input_pseudo(char *pseudo)
 {
@@ -407,13 +648,16 @@ void input_pseudo(char *pseudo)
   } while (!is_valid_pseudo(pseudo));
   printf("\033[2J");
 }
-/**
- * @brief Asks the user to input two pseudos.
- * @param pseudoN the North player's pseudo.
- * @param pseudoS the South player's pseudo.
- * @note a little function to ask the user to input two pseudos.
+
+/** 
+ * @brief Demande aux joueurs de choisir un pseudo.
+ * 
+ * Cette fonction demande aux joueurs de choisir un pseudo.
+ * 
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
  * @author Arthur
- *
  */
 void choix_pseudo(char *pseudoN, char *pseudoS)
 {
@@ -421,13 +665,17 @@ void choix_pseudo(char *pseudoN, char *pseudoS)
   input_pseudo(pseudoS);
 }
 
+
 /**
- * @brief Asks the user to move their king.
- * @param game the game to play.
- * @param pseudoN the North player's pseudo.
- * @param pseudoS the South player's pseudo.
- * @note The game will be played by two players.
- * @author Arthur
+ * @brief Déplace un pion sur le plateau.
+ * 
+ * Cette fonction permet de déplacer un pion sur le plateau en demandant à l'utilisateur de choisir une direction.
+ * 
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
+ * @author Arnaud
  */
 void move_part(board game, char *pseudoN, char *pseudoS)
 {
@@ -438,12 +686,16 @@ void move_part(board game, char *pseudoN, char *pseudoS)
   printf("\n");
   check_movement(game);
 }
+
 /**
- * @brief Asks the user to kill a cell.
- * @param game the game to play.
- * @param pseudoN the North player's pseudo.
- * @param pseudoS the South player's pseudo.
- * @note The game will be played by two players.
+ * @brief Fonction qui permet de tuer une case.
+ * 
+ * Cette fonction permet de tuer une case en demandant à l'utilisateur de choisir une case à tuer.
+ * 
+ * @param game Le plateau de jeu.
+ * @param pseudoN Le pseudo du joueur Nord.
+ * @param pseudoS Le pseudo du joueur Sud.
+ * 
  * @author Arnaud
  */
 void kill_part(board game, char *pseudoN, char *pseudoS)
@@ -455,16 +707,20 @@ void kill_part(board game, char *pseudoN, char *pseudoS)
   printf("\n");
   choix_kill(game);
 }
+
 /**
- * @brief Launches a game with the specified rules.
- * @param ranged whether the game uses the ranged killing rule.
- * @param hexagonal whether the game uses the hexagonal board rule.
- * @note The game will be played by two players.
- * @author Arthur
+ * @brief Lance une partie de jeu.
+ * 
+ * Cette fonction lance une partie de jeu en initialisant un plateau de jeu et en demandant aux joueurs
+ * 
+ * @param ranged true si la règle de distance est activée, false sinon.
+ * @param hexagonal true si le plateau est hexagonal, false sinon.
+ * 
+ * @author Arthur et Arnaud
  */
 void launch_game(bool ranged, bool hexagonal)
 {
-  board game = new_special_game(ranged, hexagonal);
+  board game = new_special_game(hexagonal, ranged);
   printf("\033[2J");
   char pseudoN[33];
   char pseudoS[33];
@@ -476,17 +732,20 @@ void launch_game(bool ranged, bool hexagonal)
   }
   printf("\033[2J");
   afficher_plateau(game, pseudoN, pseudoS);
-  printf("le joueur %s a gagné\n", get_winner(game) == NORTH ? "\e[35mNord\e[0m" : "\e[33mSud\e[0m");
+  printf("le joueur ");
+  afficher_joueur(game, pseudoN, pseudoS);
+  printf(" a gagné\n (enter)");
+  while (getchar() != '\n');
 }
 
 /**
- * @brief Converts a character to lowercase.
- * @param c the character to convert.
- * @return the lowercase character.
- * @note Only works for ASCII characters.
- * @note If the character is already lowercase, it will be returned as is.
+ * @brief Convertit un caractère en minuscule.
+ * 
+ * @param c Le caractère à convertir.
+ * @return Le caractère en minuscule.
  * @author Arthur
  */
+
 char lower(char c)
 {
   if (c >= 'A' && c <= 'Z')
@@ -496,20 +755,29 @@ char lower(char c)
   return c;
 }
 
+
 /**
- * @brief Asks the user if they want to play with a specific rule.
+ * @brief Vérifie si l'utilisateur souhaite jouer avec une règle spécifique.
+ *
+ * Cette fonction affiche un message demandant à l'utilisateur s'il souhaite jouer avec une règle donnée.
+ * L'utilisateur doit répondre par 'o' pour oui ou 'n' pour non. Si l'entrée est incorrecte, un message
+ * d'erreur est affiché et la question est reposée jusqu'à ce qu'une réponse valide soit fournie.
+ *
+ * @param rule Le nom de la règle à vérifier.
+ * @return true si l'utilisateur souhaite jouer avec la règle, false sinon.
+ *
  * @author Arthur
  */
 bool is_rules(char *rule)
 {
   char c;
   printf("\033[2J");
-  printf("Voulez-vous jouer avec la règle %s ? (o/n) ", rule);
+  printf("Voulez-vous jouer %s ? (o/n) ", rule);
   while (scanf(" %c%*[^\n]", &c) != 1 || (lower(c) != 'o' && lower(c) != 'n'))
   {
     printf("\033[2J");
     error(2, "Le charactère entrée est incorrecte");
-    printf("Voulez-vous jouer avec la règle %s ? (o/n) ", rule);
+    printf("Voulez-vous jouer %s ? (o/n) ", rule);
     while (getchar() != '\n');
   }
   return lower(c) == 'o';
@@ -522,13 +790,13 @@ bool is_rules(char *rule)
  */
 int main(int args, char **argv)
 {
-  bool ranged = true, hexagonal = false;
+  do {
+    bool ranged = false, hexagonal = false;
 
-  //hexagonal = is_rules("du plateau hexagonal");
-  //ranged = is_rules("de limite de distance");
-
-  printf("%d\n", hexagonal);
-  printf("%d\n", ranged);
-  launch_game(ranged, hexagonal);
+    hexagonal = is_rules(" avec la règle du plateau hexagonal");
+    ranged = is_rules(" avec la règle  de limite de distance");
+    launch_game(ranged, hexagonal);
+  } while (is_rules("une nouvelle partie"));
+  
   return 0;
 }
