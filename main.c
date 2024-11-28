@@ -375,16 +375,15 @@ bool is_rules(char *rule)
   char c;
   printf("\033[2J");
   printf("Voulez-vous jouer avec la règle %s ? (o/n) ", rule);
-  while (scanf(" %c", &c) != 1 || (lower(c) != 'o' && lower(c) != 'n'))
+  while (scanf(" %c%*[^\n]", &c) != 1 || (lower(c) != 'o' && lower(c) != 'n'))
   {
-    while (getchar() != '\n')
-      ;
-    printf("\033[2J");
-    error(0, "Caractère invalide. Veuillez réessayer.");
-    printf("Voulez-vous jouer avec la règle %s ? (o/n) ", rule);
+    error(2, "Le charactère entrée est incorrecte");
+    while (getchar() != '\n');
+    getchar();
+    return lower(c) == 'o';
   }
   getchar();
-  return c == 'o';
+  return false;
 }
 
 /**
