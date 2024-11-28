@@ -2,11 +2,43 @@
 #include "board.h"
 #include <unistd.h>
 
+/**
+ * @brief Prints an error message with a specific error code.
+ *
+ * This function prints an error message in red color to the standard output.
+ * The error code is displayed in bold red, followed by the error message in red.
+ *
+ * @param code The error code to be displayed.
+ * @param message The error message to be displayed.
+ * @author Arthur
+ */
 void error(int code, const char *message)
 {
   printf("\e[1;31mErreur %d\e[0m\n", code);
   printf("\e[31m%s\e[0m\n", message);
 }
+/**
+ * @brief Draws a line character at the specified coordinates.
+ *
+ * This function prints a specific line character based on the given coordinates (i, j).
+ * The characters are drawn using ANSI escape codes for colored output.
+ *
+ * @param i The row coordinate.
+ * @param j The column coordinate.
+ *
+ * The function uses the following rules to determine which character to print:
+ * - If j == 0, prints a space.
+ * - If (i == 0 && j == 0), prints the top-left corner character.
+ * - If (i == NB_LINES * 2 && j == 0), prints the bottom-left corner character.
+ * - If (i == 0 && j == NB_COLS * 2), prints the top-right corner character.
+ * - If (i == NB_LINES * 2 && j == NB_COLS * 2), prints the bottom-right corner character.
+ * - If (i == NB_LINES * 2), prints the bottom edge character.
+ * - If (j == NB_COLS * 2), prints the right edge character.
+ * - If (i == 0), prints the top edge character.
+ * - If (j == 0), prints the left edge character.
+ * - Otherwise, prints the intersection character.
+ * @author Arthur
+ */
 void draw_line(int i, int j) {
   if (j == 0) printf("  ");
   if (i == 0 && j == 0) printf("\e[34m╔\e[0m");
@@ -19,6 +51,21 @@ void draw_line(int i, int j) {
   else if (j == 0) printf("\e[34m╠\e[0m");
   else printf("\e[34m╬\e[0m");
 }
+/**
+ * @brief Draws the content of a specific cell on the game board.
+ *
+ * This function prints the content of a cell located at the specified
+ * coordinates (i, j) on the game board. The content can be empty, a killed
+ * piece, a north king, or a south king. The appearance of the north and south
+ * kings can be customized using the pseudoN and pseudoS parameters.
+ *
+ * @param i The row index of the cell.
+ * @param j The column index of the cell.
+ * @param game The game board containing the cell.
+ * @param pseudoN The pseudo name for the north king. If NULL, 'N' is used.
+ * @param pseudoS The pseudo name for the south king. If NULL, 'S' is used.
+ * @author Arthur
+ */
 void draw_content(int i, int j, board game, char *pseudoN, char *pseudoS)
 {
   switch (get_content(game, i, j))
@@ -40,96 +87,23 @@ void draw_content(int i, int j, board game, char *pseudoN, char *pseudoS)
     break;
   }
 }
-void draw_box(int i, int j, board game, char *pseudoN, char *pseudoS){
-  if (i % 2 == 0) {
-    if (j % 2 == 0){
-      draw_line(i,j);
-    }
-    else printf("\e[34m═\e[0m");
-  }
-  else if (i % 2 == 1) {
-    if (j % 2 == 0) {
-      if (j == 0) printf("%d ", i / 2);
-      printf("\e[34m║\e[0m");
-    }
-    else {
-      draw_content(i / 2, j / 2, game, pseudoN, pseudoS);
-    }
-  }
-}
-void afficher_plateau(board game, char *pseudoN, char *pseudoS)
-{
-  printf("   ");
-  for (int i = 0; i < NB_COLS * 2; i++)
-  {
-    if (i % 2 == 0)
-    {
-      printf("%d ", i / 2);
-    }
-  }
-  printf("\n");
-  for (int i = 0; i < NB_LINES * 2 + 1; i++)
-  {
-    for (int j = 0; j < NB_COLS * 2 + 1; j++)
-    {
-      draw_box(i, j, game, pseudoN, pseudoS);
-    }
-    printf("\n");
-  }
-}
-void afficher_joueur(board game, char *pseudoN, char *pseudoS)
-{
-  player p = current_player(game);
-  if (p == NORTH)
-  {
-    printf("\e[35m%s\e[0m", pseudoN);
-  }
-  else if (p == SOUTH)
-  {
-    printf("\e[33m%s\e[0m", pseudoS);
-  }
-  else
-  {
-    printf("Pas de joueur");
-  }
-}
-void afficher_texte(const char *texte)
-{
-  printf("%s", texte);
-}
-
-void find_king(board game, int *king_line, int *king_column){
-  for (int i = 0; i < NB_LINES; i++) {
-    for (int j = 0; j < NB_COLS; j++) {
-      if (current_player(game) == NORTH){
-        if (get_content(game, i, j) == NORTH_KING){*king_line = i; *king_column = j;}
-      }
-      else{
-        if (get_content(game, i, j) == SOUTH_KING){ *king_line = i; *king_column = j;}
-      }
-    }
-  }
-}
-
-bool can_move(board game, direction d)
-{
-  int line = 0, column = 0;
-  switch (d){  case NW: line = -1; column = -1; break;
-  case N: line = -1; column = 0; break;
-  case NE: line = -1; column = 1; break;
-  case W: line = 0; column = -1; break;
-  case E: line = 0; column = 1; break;
-  case SW: line = 1; column = -1; break;
-  case S: line = 1; column = 0; break;
-  case SE: line = 1; column = 1; break;
-  default: break;}
-  int king_line = 0, king_column = 0;
-  find_king(game, &king_line, &king_column);
-  if (king_line + line < 0 || king_line + line >= NB_LINES || king_column + column < 0 || king_column + column >= NB_COLS) return false;
-  if (get_content(game, king_line + line, king_column + column) == EMPTY) return true;
-  return false;
-}
-
+/**
+ * @brief Draws a box on the game board at the specified coordinates.
+ *
+ * This function draws a box on the game board at the specified coordinates (i, j).
+ * Depending on the coordinates, it either draws a line, a border, or the content
+ * of the box. The appearance of the box is determined by the game state and the
+ * provided player pseudonyms.
+ *
+ * @param i The row index on the game board.
+ * @param j The column index on the game board.
+ * @param game The current state of the game board.
+ * @param pseudoN The pseudonym of the North player.
+ * @param pseudoS The pseudonym of the South player.
+ *
+ * The string also includes a number representing the direction and ends with a blue color code (\e[34m).
+ * @author Arthur
+ */
 char *check_possible(board game, direction d)
 {
   static char res[12];
@@ -149,23 +123,37 @@ char *check_possible(board game, direction d)
   return res;
 }
 
+
+
+/**
+ * @brief Prompts the user to choose a direction to move the king on the board.
+ *
+ * This function displays a graphical representation of the possible directions
+ * the king can move on the board. It then prompts the user to enter a number
+ * corresponding to the desired direction. The function validates the input and
+ * returns the chosen direction.
+ *
+ * @param game The current state of the board.
+ * @return The direction chosen by the user.
+ *
+ * Directions are mapped to the following numbers:
+ * 1 - Southwest (SW)
+ * 2 - South (S)
+ * 3 - Southeast (SE)
+ * 4 - West (W)
+ * 6 - East (E)
+ * 7 - Northwest (NW)
+ * 8 - North (N)
+ * 9 - Northeast (NE)
+ * 
+ * If an invalid input is entered, an error message is displayed and the user
+ * is prompted to enter a valid number again.
+ * @author Arnaud et Arthur
+ */
 direction mouvement(board game)
 {
   direction d;
-  printf("Dans quelle direction voulez-vous déplacer votre roi ?\n");
-  printf("  \e[34m╔═══╦═══╦═══╗\e[0m\n");
-  printf("  \e[34m║ %s ", check_possible(game, NW));
-  printf("║ %s ", check_possible(game, N));
-  printf("║ %s ║\e[0m\n", check_possible(game, NE));
-  printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");
-  printf("  \e[34m║ %s ", check_possible(game, W));
-  printf("║ * ");
-  printf("║ %s ║\e[0m\n", check_possible(game, E));
-  printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");
-  printf("  \e[34m║ %s ", check_possible(game, SW));
-  printf("║ %s ", check_possible(game, S));
-  printf("║ %s ║\e[0m\n", check_possible(game, SE));
-  printf("  \e[34m╚═══╩═══╩═══╝\e[0m\n");
+  printf("Dans quelle direction voulez-vous déplacer votre roi ?\n");printf("  \e[34m╔═══╦═══╦═══╗\e[0m\n");printf("  \e[34m║ %s ", check_possible(game, NW));printf("║ %s ", check_possible(game, N));printf("║ %s ║\e[0m\n", check_possible(game, NE));printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");printf("  \e[34m║ %s ", check_possible(game, W));printf("║ * ");printf("║ %s ║\e[0m\n", check_possible(game, E));printf("  \e[34m╠═══╬═══╬═══╣\e[0m\n");printf("  \e[34m║ %s ", check_possible(game, SW));printf("║ %s ", check_possible(game, S));printf("║ %s ║\e[0m\n", check_possible(game, SE));printf("  \e[34m╚═══╩═══╩═══╝\e[0m\n");
   int choix;
   while (scanf("%d", &choix) != 1) {
     error(2, "Le charactère entrée est incorrecte");
@@ -184,7 +172,12 @@ direction mouvement(board game)
   }
   return d;
 }
-
+/**
+ * @brief Checks if a player can move their king to an other cell.
+ * @param game the game to play.
+ * @note The player can move their king to an empty cell.
+ * @author Arnaud
+ */
 void check_movement(board game)
 {
   int ok = 1;
@@ -201,6 +194,7 @@ void check_movement(board game)
  * @brief Asks the user to kill a cell.
  * @param game the game to play.
  * @note can kill a cell already kill.
+ * @author Arnaud
  */
 void choix_kill(board game)
 {
@@ -239,7 +233,7 @@ void choix_kill(board game)
  * @brief Checks if a pseudo is valid.
  * @param pseudo the pseudo to check.
  * @return true if the pseudo is valid, false otherwise.
- * @author Arthur
+ * @author Arnaud
  */
 bool is_valid_pseudo(const char *pseudo)
 {
@@ -260,7 +254,7 @@ bool is_valid_pseudo(const char *pseudo)
  * @param pseudo the pseudo to input.
  * @note The pseudo must be at most 32 characters long.
  * @note The pseudo must not be empty.
- * @author Arthur
+ * @author Arthur et Arnaud
  */
 void input_pseudo(char *pseudo)
 {
