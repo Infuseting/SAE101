@@ -87,6 +87,142 @@ void draw_content(int i, int j, board game, char *pseudoN, char *pseudoS)
     break;
   }
 }
+
+/**
+ * @brief Draws a box on the game board at the specified coordinates.
+ * @param i The row index on the game board.
+ * @param j The column index on the game board.
+ * @param game The current state of the game board.
+ * @param pseudoN The pseudonym of the North player.
+ * @param pseudoS The pseudonym of the South player.
+ * @note The appearance of the box is determined by the game state and the provided player pseudonyms.
+ * @author Arthur
+ */
+void draw_box(int i, int j, board game, char *pseudoN, char *pseudoS){
+  if (i % 2 == 0) {
+    if (j % 2 == 0){
+      draw_line(i,j);
+    }
+    else printf("\e[34m═\e[0m");
+  }
+  else if (i % 2 == 1) {
+    if (j % 2 == 0) {
+      if (j == 0) printf("%d ", i / 2);
+      printf("\e[34m║\e[0m");
+    }
+    else {
+      draw_content(i / 2, j / 2, game, pseudoN, pseudoS);
+    }
+  }
+}
+/** 
+ * @brief Displays the game board on the standard output.
+ * @param game The current state of the game board.
+ * @param pseudoN The pseudonym of the North player.
+ * @param pseudoS The pseudonym of the South player.
+ * @note The game board is displayed using ASCII characters and colored output.
+ * @author Arthur
+ */
+void afficher_plateau(board game, char *pseudoN, char *pseudoS)
+{
+  printf("   ");
+  for (int i = 0; i < NB_COLS * 2; i++)
+  {
+    if (i % 2 == 0)
+    {
+      printf("%d ", i / 2);
+    }
+  }
+  printf("\n");
+  for (int i = 0; i < NB_LINES * 2 + 1; i++)
+  {
+    for (int j = 0; j < NB_COLS * 2 + 1; j++)
+    {
+      draw_box(i, j, game, pseudoN, pseudoS);
+    }
+    printf("\n");
+  }
+}
+/**
+ * @brief Displays the current player on the standard output.
+ * @param game The current state of the game board.
+ * @param pseudoN The pseudonym of the North player.
+ * @param pseudoS The pseudonym of the South player.
+ * @note The current player is displayed in the color of their respective king.
+ * @author Arthur
+ */
+void afficher_joueur(board game, char *pseudoN, char *pseudoS)
+{
+  player p = current_player(game);
+  if (p == NORTH)
+  {
+    printf("\e[35m%s\e[0m", pseudoN);
+  }
+  else if (p == SOUTH)
+  {
+    printf("\e[33m%s\e[0m", pseudoS);
+  }
+  else
+  {
+    printf("Pas de joueur");
+  }
+}
+/**
+ * @brief Displays a text on the standard output.
+ * @param texte The text to display.
+ * @author Arthur
+ */
+void afficher_texte(const char *texte)
+{
+  printf("%s", texte);
+}
+/** 
+ * @brief Finds the coordinates of the king on the game board.
+ * @param game The current state of the game board.
+ * @param king_line The pointer to the variable where the king's row index will be stored.
+ * @param king_column The pointer to the variable where the king's column index will be stored.
+ * @note The king's coordinates are stored in the king_line and king_column variables.
+ * @author Arthur
+ */
+void find_king(board game, int *king_line, int *king_column){
+  for (int i = 0; i < NB_LINES; i++) {
+    for (int j = 0; j < NB_COLS; j++) {
+      if (current_player(game) == NORTH){
+        if (get_content(game, i, j) == NORTH_KING){*king_line = i; *king_column = j;}
+      }
+      else{
+        if (get_content(game, i, j) == SOUTH_KING){ *king_line = i; *king_column = j;}
+      }
+    }
+  }
+}
+/**
+ * @brief Checks if the king can move in a specific direction.
+ * @param game The current state of the game board.
+ * @param d The direction in which the king should move.
+ * @return true if the king can move in the specified direction, false otherwise.
+ * @note The king can move to an empty cell.
+ * @author Arthur
+ */
+bool can_move(board game, direction d)
+{
+  int line = 0, column = 0;
+  switch (d){  case NW: line = -1; column = -1; break;
+  case N: line = -1; column = 0; break;
+  case NE: line = -1; column = 1; break;
+  case W: line = 0; column = -1; break;
+  case E: line = 0; column = 1; break;
+  case SW: line = 1; column = -1; break;
+  case S: line = 1; column = 0; break;
+  case SE: line = 1; column = 1; break;
+  default: break;}
+  int king_line = 0, king_column = 0;
+  find_king(game, &king_line, &king_column);
+  if (king_line + line < 0 || king_line + line >= NB_LINES || king_column + column < 0 || king_column + column >= NB_COLS) return false;
+  if (get_content(game, king_line + line, king_column + column) == EMPTY) return true;
+  return false;
+}
+
 /**
  * @brief Draws a box on the game board at the specified coordinates.
  *
@@ -386,10 +522,10 @@ bool is_rules(char *rule)
  */
 int main(int args, char **argv)
 {
-  bool ranged = false, hexagonal = false;
+  bool ranged = true, hexagonal = false;
 
-  hexagonal = is_rules("du plateau hexagonal");
-  ranged = is_rules("de limite de distance");
+  //hexagonal = is_rules("du plateau hexagonal");
+  //ranged = is_rules("de limite de distance");
 
   printf("%d\n", hexagonal);
   printf("%d\n", ranged);
